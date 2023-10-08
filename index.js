@@ -1,7 +1,13 @@
 const canvas = document.getElementById('game');
 const canvasContext = canvas.getContext('2d');
 const scoreVal = document.getElementById('scoreVal')
-
+const song = new Audio("audio/gameAudio.mp3")
+const endSong = new Audio("/audio/gameEnd.mp3")
+const toot = new Audio("audio/train-toot.mp3")
+const trainHead = document.querySelector(".train-head")
+const caboose = document.querySelector('.caboose')
+const background = new Image();
+background.src = "images/46636562-seamless-pattern-railway-with-trains.jpg"
 
 class SnakePart{
   constructor(x,y){
@@ -55,17 +61,25 @@ function isGameOver(){
   }
 
   if (gameOver) {
+    song.pause();
+    endSong.play();
     canvasContext.fillStyle = "white";
     canvasContext.font = "50px Arial"
     canvasContext.fillText('Game Over',canvas.width / 6.5, canvas.height / 2);
   }
+
   return gameOver;
 }
 
 function clearScreen(){
-  canvasContext.fillStyle = 'black';
+  canvasContext.fillStyle = '#3392ff';
   canvasContext.fillRect(0,0, canvas.width , canvas.height)
 }
+
+// background.onload = function(){
+//   canvasContext.drawImage(background,0,0)
+// }
+
 
 function changeSnakePosition(){
   headX = headX + xVel;
@@ -76,25 +90,32 @@ function checkEatFood(){
   if (foodX === headX && foodY === headY){
     foodX = Math.floor(Math.random() * tileCount);
     foodY = Math.floor(Math.random() * tileCount);
+    toot.play();
     tailLength++;
     score++;
+    speed += .2;
     updateScore();
   }
 }
 
 function drawFood(){
-  canvasContext.fillStyle = 'red';
-  canvasContext.fillRect(foodX * tileCount, foodY * tileCount, tileSize , tileSize)
+  canvasContext.drawImage(caboose,foodX * tileCount, foodY * tileCount, tileSize + 4, tileSize + 4)
+  // canvasContext.fillStyle = 'red';
+  // canvasContext.fillRect(foodX * tileCount, foodY * tileCount, tileSize , tileSize)
 }
 
 
 function drawSnake(){
-  canvasContext.fillStyle = 'green';
-  canvasContext.fillRect(headX * tileCount, headY * tileCount, tileSize, tileSize)
-  canvasContext.fillStyle = 'yellow';
+  canvasContext.drawImage(trainHead,headX * tileCount, headY * tileCount, tileSize + 4, tileSize + 4)
+  // canvasContext.fillStyle = 'green';
+  // canvasContext.fillRect(headX * tileCount, headY * tileCount, tileSize, tileSize)
+  // canvasContext.fillStyle = 'yellow';
+
   for (let i = 0; i < snakeBody.length; i++){
     let part = snakeBody[i];
-    canvasContext.fillRect(part.x * tileCount, part.y * tileCount, tileSize, tileSize);
+    canvasContext.drawImage(caboose,part.x * tileCount, part.y * tileCount, tileSize + 4, tileSize + 4)
+
+    // canvasContext.fillRect(part.x * tileCount, part.y * tileCount, tileSize, tileSize);
   }
   snakeBody.push(new SnakePart(headX, headY));
   while (snakeBody.length > tailLength){
@@ -105,9 +126,6 @@ function drawSnake(){
 function updateScore() {
   scoreVal.innerHTML = score;
 }
-
-
-
 
 document.body.addEventListener('keydown', keyDown);
 
@@ -138,5 +156,26 @@ function keyDown(event){
     xVel = 1;
   }
 }
+
+//play music on first key press
+document.body.addEventListener('keydown', playMusic);
+
+function playMusic(event){
+
+  if (event.keyCode === 38 ||
+    event.keyCode === 40 ||
+    event.keyCode === 37 ||
+    event.keyCode === 39
+    ){
+      song.play()
+    }
+}
+
+song.addEventListener('ended', function() {
+  this.currentTime = 0;
+  this.play();
+}, false);
+
+
 
 drawGame();
